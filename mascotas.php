@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
 
 $header = apache_request_headers();
 $jwt = $header['Authorization'];
-if(JWT::verify($jwt,"qwertyuiop")!=0){
+if(JWT::verify($jwt, Config::SECRET)!=0){
     header("HTT/1.1 401 Unauthorized");
     exit();
 }

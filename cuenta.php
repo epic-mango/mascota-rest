@@ -6,9 +6,29 @@ header("Allow: GET, POST, PUT, DELETE, OPTIONS, HEAD");
 require_once "conexion.php";
 require_once "librerias/jwt.php";
 
+if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
+    exit();
+}
+
+$header = apache_request_headers();
+
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     //Identificarse
-    if (isset($_GET['id']) && isset($_GET['pass'])) {
+    if (isset($header['Authorization'])) {
+
+        $jwt = $header['Authorization'];
+        if (($valor = JWT::verify($jwt, Config::SECRET)) == 0) {
+            //Tenía un Token válido, renovarlo.
+            $data = JWT::get_data($jwt, Config::SECRET);
+            $jwt = JWT::create(array("id" => $data['id']), Config::SECRET);
+            $r = array("estado" => "true", "token" => $jwt);
+        } else
+            $r = array("estado" => "false", "token" => "Token inválido");
+
+
+        header("HTTP/1.1 200 OK");
+        echo json_encode($r);
+    } else if (isset($_GET['id']) && isset($_GET['pass'])) {
         $c = conexion();
         $s = $c->prepare("SELECT * FROM Usuarios WHERE id=:u AND pass=MD5(:p)");
         $s->bindValue(":u", $_GET['id']);
@@ -17,10 +37,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $s->setFetchMode(PDO::FETCH_ASSOC);
         $r = $s->fetch();
         if ($r) {
-            $jwt = JWT::create(array("user" => $_GET['user']), Config::SECRET);
+            $jwt = JWT::create(array("id" => $_GET['id']), Config::SECRET);
             $r = array("estado" => "true", "token" => $jwt);
         } else {
-            $r = array("estado" => "false", "token" => "Error de usuario/contraseña");
+            $r = array("estado" => "false", "token" => "Error de usuario y contrasena");
         }
         header("HTTP/1.1 200 OK");
         echo json_encode($r);
@@ -32,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     //Crear cuenta
     $c = conexion();
     if (isset($_POST["id"]) && isset($_POST["pass"]) && isset($_POST["apodo"])) {
-        $insert = $c->prepare("INSERT INTO Usuarios VALUES (:id, :pass, :nombres, :apellidos, :apodo)");
+        $insert = $c->prepare("INSERT INTO Usuarios VALUES (:id, MD5(:pass), :nombres, :apellidos, :apodo)");
         $insert->bindValue(":id", $_POST["id"]);
         $insert->bindValue(":pass", $_POST["pass"]);
         $insert->bindValue(":apodo", $_POST["apodo"]);
@@ -52,7 +72,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $r = array("estado" => "true", "token" => $jwt);
         } catch (PDOException $e) {
             //No se insertó el usuario
-
             $r = array("estado" => "false", "token" => $e->getCode());
         }
 

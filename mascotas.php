@@ -49,6 +49,27 @@ switch ($metodo) {
         }
         break;
 
+    case "GET":
+        $c = conexion();
+
+        $stm = $c->prepare("SELECT * FROM mascotas WHERE usuario = :id");
+        $stm->bindValue(":id", $data['id']);
+        $stm->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stm->execute();
+
+        if ($result) {
+            header("HTTP/1.1 200 OK");
+            echo (json_encode(
+                array(
+                    "estado" => "true",
+                    "datos" => $stm->fetchAll()
+                )
+            ));
+        } else {
+            header("HTTP/1.1 204 No Content");
+        }
+        break;
+
     default:
         header("HTTP/1.1 400 Bad Request");
         break;

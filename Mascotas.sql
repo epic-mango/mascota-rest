@@ -14,7 +14,7 @@ CREATE TABLE Mascotas (
   nombre VARCHAR (45),
   especie INT,
   raza INT,
-  nacimiento DATE ,
+  nacimiento LONG ,
   usuario VARCHAR (20),
   CONSTRAINT Mascota_Usuario
     FOREIGN KEY (usuario) REFERENCES Usuarios(id)
@@ -22,3 +22,4 @@ CREATE TABLE Mascotas (
     ON UPDATE CASCADE,
   PRIMARY KEY (id)  
 );
+

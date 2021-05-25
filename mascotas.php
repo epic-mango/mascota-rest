@@ -1,8 +1,8 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Authorization, Access-Control-Allow-Methods, Access-Control-Allow-Headers, Allow, Access-Control-Allow-Origin");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD");
-header("Allow: GET, POST, PUT, DELETE, OPTIONS, HEAD");
+header("Access-Control-Allow-Methods: GET, PUT, PUT, DELETE, OPTIONS, HEAD");
+header("Allow: GET, PUT, PUT, DELETE, OPTIONS, HEAD");
 require_once "conexion.php";
 require_once "librerias/jwt.php";
 
@@ -69,6 +69,26 @@ switch ($metodo) {
             header("HTTP/1.1 204 No Content");
         }
         break;
+
+        case "PUT":
+            parse_str(file_get_contents("php://input"), $PUT);
+           
+            if(isset($PUT['id']) && isset($PUT['nombre']) && isset($PUT['especie']) && isset($PUT['raza']) && isset($PUT['nacimiento'])){
+                $c = conexion();
+                $s = $c->prepare("UPDATE mascotas SET nombre=:nom, especie = :esp, raza = :raz, nacimiento=:nac WHERE id = :id AND usuario = :usu");
+                $s->bindValue(":nom",$PUT['nombre']);
+                $s->bindValue(":esp",$PUT['especie']);
+                $s->bindValue(":raz",$PUT['raza']);
+                $s->bindValue(":nac",$PUT['nacimiento']);
+                $s->bindValue(":id",$PUT['id']);
+                $s->bindValue(":usu",$data['id']);
+
+                echo(json_encode(array('estado'=>$s->execute())));
+                
+            } else {
+                header("HTTP/1.1 400 Bad Request");
+            }
+            break;
 
     default:
         header("HTTP/1.1 400 Bad Request");

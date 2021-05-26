@@ -70,25 +70,37 @@ switch ($metodo) {
         }
         break;
 
-        case "PUT":
-            parse_str(file_get_contents("php://input"), $PUT);
-           
-            if(isset($PUT['id']) && isset($PUT['nombre']) && isset($PUT['especie']) && isset($PUT['raza']) && isset($PUT['nacimiento'])){
-                $c = conexion();
-                $s = $c->prepare("UPDATE mascotas SET nombre=:nom, especie = :esp, raza = :raz, nacimiento=:nac WHERE id = :id AND usuario = :usu");
-                $s->bindValue(":nom",$PUT['nombre']);
-                $s->bindValue(":esp",$PUT['especie']);
-                $s->bindValue(":raz",$PUT['raza']);
-                $s->bindValue(":nac",$PUT['nacimiento']);
-                $s->bindValue(":id",$PUT['id']);
-                $s->bindValue(":usu",$data['id']);
+    case "PUT":
+        parse_str(file_get_contents("php://input"), $PUT);
 
-                echo(json_encode(array('estado'=>$s->execute())));
-                
-            } else {
-                header("HTTP/1.1 400 Bad Request");
-            }
-            break;
+        if (isset($PUT['id']) && isset($PUT['nombre']) && isset($PUT['especie']) && isset($PUT['raza']) && isset($PUT['nacimiento'])) {
+            $c = conexion();
+            $s = $c->prepare("UPDATE mascotas SET nombre=:nom, especie = :esp, raza = :raz, nacimiento=:nac WHERE id = :id AND usuario = :usu");
+            $s->bindValue(":nom", $PUT['nombre']);
+            $s->bindValue(":esp", $PUT['especie']);
+            $s->bindValue(":raz", $PUT['raza']);
+            $s->bindValue(":nac", $PUT['nacimiento']);
+            $s->bindValue(":id", $PUT['id']);
+            $s->bindValue(":usu", $data['id']);
+
+            echo (json_encode(array('estado' => $s->execute())));
+        } else {
+            header("HTTP/1.1 400 Bad Request");
+        }
+        break;
+
+    case "DELETE":
+        if (isset($_GET['id'])) {
+            $c = conexion();
+            $s = $c->prepare("DELETE FROM mascotas WHERE id = :id AND usuario = :usu");
+            $s->bindValue(":id", $_GET['id']);
+            $s->bindValue(":usu", $data['id']);
+
+            echo (json_encode(array('estado' => $s->execute())));
+        } else {
+            header("HTTP/1.1 400 Bad Request");
+        }
+        break;
 
     default:
         header("HTTP/1.1 400 Bad Request");

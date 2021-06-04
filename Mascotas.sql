@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-05-2021 a las 06:34:54
+-- Tiempo de generación: 04-06-2021 a las 04:52:02
 -- Versión del servidor: 10.4.16-MariaDB
 -- Versión de PHP: 7.4.12
 
@@ -32,15 +32,29 @@ CREATE TABLE `dispositivos` (
   `pass` varchar(64) NOT NULL,
   `serie` int(11) NOT NULL,
   `mascota` int(11) DEFAULT NULL,
-  `contenido` varchar(45) DEFAULT NULL
+  `alimento` varchar(45) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `dispositivos`
 --
 
-INSERT INTO `dispositivos` (`mac`, `pass`, `serie`, `mascota`, `contenido`) VALUES
-('68:C6:3A:D7:3A:7E', '202cb962ac59075b964b07152d234b70', 1, NULL, NULL);
+INSERT INTO `dispositivos` (`mac`, `pass`, `serie`, `mascota`, `alimento`) VALUES
+('68:C6:3A:D7:3A:7E', '202cb962ac59075b964b07152d234b70', 1, NULL, 'Croquetas'),
+('Hola', '202cb962ac59075b964b07152d234b70', 1, NULL, 'Agua');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `horarios`
+--
+
+CREATE TABLE `horarios` (
+  `id` int(11) NOT NULL,
+  `mac` varchar(30) NOT NULL,
+  `minuto` int(11) NOT NULL,
+  `gramos` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -62,10 +76,8 @@ CREATE TABLE `mascotas` (
 --
 
 INSERT INTO `mascotas` (`id`, `nombre`, `especie`, `raza`, `nacimiento`, `usuario`) VALUES
-(17, 'Bagheera', 0, 0, '1400313992972', 'atlmango'),
-(18, 'Bagheera', 0, 0, '1400314621071', 'atlmango'),
-(19, 'Bagheera', 0, 380, '1615973015678', 'atlmango'),
-(20, 'Q\'Baby', 1, 88, '1615973745624', 'atlmango');
+(20, 'Bagheera', 0, 252, '1622709345624', 'atlmango'),
+(24, 'Kiwi', 0, 123, '1047189684840', 'atlmango');
 
 -- --------------------------------------------------------
 
@@ -106,7 +118,23 @@ INSERT INTO `sensores` (`mac`, `tipo`, `valor`, `fecha`) VALUES
 ('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-12 18:10:40'),
 ('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-12 18:11:26'),
 ('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-12 18:12:16'),
-('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-12 18:13:32');
+('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-12 18:13:32'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-14 06:51:05'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-14 06:56:26'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-14 06:57:33'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-14 06:58:50'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-14 06:59:04'),
+('68:C6:3A:D7:3A:7E', 'tan', 1, '2021-05-14 07:28:48'),
+('68:C6:3A:D7:3A:7E', 'tan', 1, '2021-05-14 07:34:47'),
+('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-24 05:06:18'),
+('68:C6:3A:D7:3A:7E', 'tan', 1, '2021-05-24 05:07:11'),
+('68:C6:3A:D7:3A:7E', 'tan', 1, '2021-05-24 05:08:26'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-27 00:01:06'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-27 00:03:29'),
+('68:C6:3A:D7:3A:7E', 'tan', 7, '2021-05-28 00:45:02'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-28 00:53:27'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-31 01:28:26'),
+('68:C6:3A:D7:3A:7E', 'tan', 0, '2021-05-31 01:29:59');
 
 -- --------------------------------------------------------
 
@@ -143,6 +171,12 @@ ALTER TABLE `dispositivos`
   ADD KEY `FK_mascota` (`mascota`);
 
 --
+-- Indices de la tabla `horarios`
+--
+ALTER TABLE `horarios`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `mascotas`
 --
 ALTER TABLE `mascotas`
@@ -166,10 +200,16 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `horarios`
+--
+ALTER TABLE `horarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
 -- AUTO_INCREMENT de la tabla `mascotas`
 --
 ALTER TABLE `mascotas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- Restricciones para tablas volcadas

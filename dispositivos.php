@@ -51,50 +51,96 @@ switch ($metodo) {
 
     case "GET":
 
-        if (isset($_GET['idMascota'])) {
+        if (isset($_GET['id'])) {
             $c = conexion();
 
-            $stm = $c->prepare("SELECT * FROM dispositivos INNER JOIN mascotas ON dispositivos.mascota = mascotas.id WHERE mascotas.usuario = :usuario AND mascotas.id = :id;");
+            $stm = $c->prepare("SELECT mac, alimento, serie FROM dispositivos INNER JOIN mascotas ON dispositivos.mascota = mascotas.id WHERE mascotas.usuario = :usuario AND mascotas.id = :id;");
             $stm->bindValue(":usuario", $data['id']);
-            $stm->bindValue(":id", $_GET['idMascota']);
+            $stm->bindValue(":id", $_GET['id']);
             $stm->setFetchMode(PDO::FETCH_ASSOC);
             $result = $stm->execute();
 
             if ($result) {
+
+                $datos = $stm->fetchAll();
+                $mac_tokens = array();
+
+                foreach ($datos as $dato) {
+                    $jwt = JWT::create(array("mac" => $dato['mac']), Config::SECRET);
+                    $mac_tokens[$dato['mac']] = $jwt;
+                }
+
                 header("HTTP/1.1 200 OK");
                 echo (json_encode(
                     array(
                         "estado" => "true",
-                        "datos" => $stm->fetchAll()
+                        "datos" => $datos,
+                        "mac_tokens" => $mac_tokens
                     )
                 ));
             } else {
                 header("HTTP/1.1 204 No Content");
             }
         } else {
-            echo "idMascota not sent";
+            echo (json_encode(
+                array(
+                    "estado" => "false",
+                    "datos" => "Faltan datos"
+                )
+            ));
         }
         break;
 
-    case "PUT":
-        if (isset($_GET['mac']) && isset($_GET['pass']) && isset($_GET['mascota'])) {
+    case "POST":
+        if (isset($_GET['mac']) && isset($_GET['pass']) && isset($_GET['mascota']) && isset($_GET['alimento'])) {
             $c = conexion();
 
-            $stm = $c->prepare("UPDATE dispositivos SET mascota = :mascota WHERE mac = :mac AND pass = md5(:pass);");
+            $stm = $c->prepare("UPDATE dispositivos SET mascota = :mascota, alimento = :alimento WHERE mac = :mac AND pass = md5(:pass);");
             $stm->bindValue(":mascota", $_GET['mascota']);
             $stm->bindValue(":mac", $_GET['mac']);
             $stm->bindValue(":pass", $_GET['pass']);
+            $stm->bindValue(":alimento", $_GET['alimento']);
 
             $stm->execute();
 
             if ($stm->rowCount()) {
-                $r = array("registrado", "true");
+                $jwt = JWT::create(array("mac" => $_GET['mac']), Config::SECRET);
+                $r = array("registrado" => "true", "mac_token" => $jwt);
             } else {
-                $r = array("registrado", "false");
+                $r = array("registrado" => "false");
             }
 
             header("HTTP/1.1 200 OK");
             echo json_encode($r);
+        } else {
+            echo (json_encode(array("registrado" => "false", "error" => "Faltan datos")));
+        }
+        break;
+
+    case "PUT":
+        parse_str(file_get_contents("php://input"), $_GET);
+        if (isset($_GET['mac']) && isset($_GET['pass']) && isset($_GET['mascota']) && isset($_GET['alimento'])) {
+            $c = conexion();
+
+            $stm = $c->prepare("UPDATE dispositivos SET mascota = :mascota, alimento = :alimento WHERE mac = :mac AND pass = md5(:pass);");
+            $stm->bindValue(":mascota", $_GET['mascota']);
+            $stm->bindValue(":mac", $_GET['mac']);
+            $stm->bindValue(":pass", $_GET['pass']);
+            $stm->bindValue(":alimento", $_GET['alimento']);
+
+            $stm->execute();
+
+            if ($stm->rowCount()) {
+                $jwt = JWT::create(array("mac" => $_GET['mac']), Config::SECRET);
+                $r = array("registrado" => "true", "mac_token" => $jwt);
+            } else {
+                $r = array("registrado" => "false");
+            }
+
+            header("HTTP/1.1 200 OK");
+            echo json_encode($r);
+        } else {
+            echo (json_encode(array("registrado" => "false", "error" => "Faltan datos")));
         }
         break;
 

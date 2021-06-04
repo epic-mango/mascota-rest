@@ -34,9 +34,16 @@ switch ($metodo) {
         if (isset($_GET['mac'])) {
             $c = conexion();
 
-            $stm = $c->prepare("SELECT horarios.id, horarios.minuto, horarios.gramos FROM horarios INNER JOIN dispositivos ON horarios.mac = dispositivos.mac INNER JOIN mascotas ON dispositivos.mascota = mascotas.id WHERE mascotas.usuario = :usuario AND dispositivos.mac = :mac;");
-            $stm->bindValue(":usuario", $data['id']);
-            $stm->bindValue(":mac", $_GET['mac']);
+            if (isset($data['id'])){
+                $stm = $c->prepare("SELECT horarios.id, horarios.minuto, horarios.gramos FROM horarios INNER JOIN dispositivos ON horarios.mac = dispositivos.mac INNER JOIN mascotas ON dispositivos.mascota = mascotas.id WHERE mascotas.usuario = :usuario AND dispositivos.mac = :mac;");
+                $stm->bindValue(":usuario", $data['id']);
+                $stm->bindValue(":mac", $_GET['mac']);
+            }
+            else{
+                $stm = $c->prepare("SELECT horarios.id, horarios.minuto, horarios.gramos FROM horarios INNER JOIN dispositivos ON horarios.mac = dispositivos.mac INNER JOIN mascotas ON dispositivos.mascota = mascotas.id WHERE dispositivos.mac = :mac;");
+                $stm->bindValue(":mac", $data['mac']);
+            }
+                
             $stm->setFetchMode(PDO::FETCH_ASSOC);
             $result = $stm->execute();
 
@@ -121,7 +128,7 @@ switch ($metodo) {
         break;
 
     case "DELETE":
-        if (isset($_GET['id']) && isset($_GET['mac_token'])&& JWT::verify($_GET['mac_token'],Config::SECRET)==0) {
+        if (isset($_GET['id']) && isset($_GET['mac_token']) && JWT::verify($_GET['mac_token'], Config::SECRET) == 0) {
 
             $tokenData = JWT::get_data($_GET['mac_token'], Config::SECRET);
             $mac = $tokenData['mac'];

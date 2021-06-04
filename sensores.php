@@ -25,10 +25,13 @@ $data = JWT::get_data($jwt, Config::SECRET);
 switch ($metodo){
     case "POST":
 
-        if (isset($_POST['mac']) && isset($_POST['tipo'])&& isset($_POST['valor'])){
+        if (isset($_POST['tipo'])&& isset($_POST['valor'])){
+
+            date_default_timezone_set("America/Mexico_City");
+            
             $c=conexion();
             $s = $c->prepare("INSERT INTO sensores (mac, tipo, valor, fecha) VALUES (:mac, :tipo,:valor,:fecha);");
-            $s->bindValue(":mac", $_POST['mac']);
+            $s->bindValue(":mac", $data['mac']);
             $s->bindValue(":tipo", $_POST['tipo']);
             $s->bindValue(":valor", $_POST['valor']);
             $s->bindValue(":fecha", date("Y-m-d H:i:s"));

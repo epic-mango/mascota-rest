@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         echo json_encode($r);
     } else if (isset($_GET['id']) && isset($_GET['pass'])) {
         $c = conexion();
-        $s = $c->prepare("SELECT * FROM Usuarios WHERE id=:u AND pass=MD5(:p)");
+        $s = $c->prepare("SELECT * FROM usuarios WHERE id=:u AND pass=MD5(:p)");
         $s->bindValue(":u", $_GET['id']);
         $s->bindValue(":p", $_GET['pass']);
         $s->execute();
